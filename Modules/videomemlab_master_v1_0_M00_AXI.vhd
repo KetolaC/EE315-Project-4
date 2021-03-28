@@ -84,7 +84,25 @@ entity videomemlab_master_v1_0_M00_AXI is
 end videomemlab_master_v1_0_M00_AXI;
 
 architecture implementation of videomemlab_master_v1_0_M00_AXI is
-
+    
+    component scancode2ascii is
+    port(
+        scancode    : in std_logic_vector(7 downto 0);
+        ascii       : out std_logic_vector(7 downto 0);
+        shift,ctrl,alt : in std_logic 
+    );
+    end component;
+    
+    component char8x12_lookup_table is
+    port(
+        clk : in std_logic;
+        reset : in std_logic;
+        ascii : in std_logic_vector(7 downto 0);
+        line : in integer range 0 to 11;
+        pixels : out std_logic_vector(7 downto 0)
+        );
+    end component;
+        
 	signal code, ascii : std_logic_vector(7 downto 0);
 	signal shift, ctrl, alt : std_logic;
 
@@ -570,9 +588,25 @@ begin
 	rst_p <= not M_AXI_ARESETN;
 
     -- instantiate the 8x12 lookup table here
-      
+    inst_LUT : char8x12_lookup_table
+    port map(
+    clk => M_AXI_ACLK,
+    reset => rst_p,
+    line => scan_line,
+    ascii => ascii,
+    pixels => axi_wdata 
+    ); 
+    
     -- instantiate the scancode to ascii component here
-  
+    inst_SCAN : scancode2ascii
+    port map(
+    scancode => M_AXI_RDATA,
+    ascii => ascii,
+    shift => shift,
+    ctrl => ctrl,
+    alt => alt
+    );
+    
     -- set the text and background color here
   
     -- set the color_pixels word based on the reg_pixels byte which is a registered
