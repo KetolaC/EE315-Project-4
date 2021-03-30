@@ -1,6 +1,7 @@
 library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
+--use ieee.std_logic_unsigned.all;
 
 entity videomemlab_master_v1_0_M00_AXI is
 	generic (
@@ -88,7 +89,7 @@ architecture implementation of videomemlab_master_v1_0_M00_AXI is
     component scancode2ascii is
     port(
         scancode    : in std_logic_vector(7 downto 0);
-        ascii       : out std_logic_vector(7 downto 0);
+        ascii_out       : out std_logic_vector(7 downto 0);
         shift,ctrl,alt : in std_logic 
     );
     end component;
@@ -97,7 +98,7 @@ architecture implementation of videomemlab_master_v1_0_M00_AXI is
     port(
         clk : in std_logic;
         reset : in std_logic;
-        ascii : in std_logic_vector(7 downto 0);
+        ascii_in : in std_logic_vector(7 downto 0);
         line : in integer range 0 to 11;
         pixels : out std_logic_vector(7 downto 0)
         );
@@ -105,7 +106,8 @@ architecture implementation of videomemlab_master_v1_0_M00_AXI is
         
 	signal code, ascii : std_logic_vector(7 downto 0);
 	signal shift, ctrl, alt : std_logic;
-
+    --signal long_pixel : std_logic_vector(31 downto 0);
+    
     signal current_addr : std_logic_vector(31 downto 0);
 	 type state is ( INITMEM,   -- Clear the memory
 	                 WAIT4IRQ,  -- Wait for interrupt from PS/2
@@ -253,8 +255,13 @@ begin
 	       end if;                                                                   
 	     end if;                                                                     
 	   end process;                                                                  
-
-
+       
+       
+       --going from 8 bit pixel to 32 bit pixel 
+--       process(M_AXI_ACLK)                                                 
+--	   begin                                                                         
+--	     if (rising_edge (M_AXI_ACLK)) then
+--	         if 
 	------------------------------
 	--Write Response (B) Channel
 	------------------------------
@@ -593,26 +600,27 @@ begin
     clk => M_AXI_ACLK,
     reset => rst_p,
     line => scan_line,
-    ascii => ascii,
+    ascii_in => ascii,
     pixels => axi_wdata 
+--    pixels => open
     ); 
     
     -- instantiate the scancode to ascii component here
     inst_SCAN : scancode2ascii
     port map(
     scancode => M_AXI_RDATA,
-    ascii => ascii,
+    ascii_out => ascii,
     shift => shift,
     ctrl => ctrl,
     alt => alt
     );
     
     -- set the text and background color here
-  
+    color_pixels <= txtcolor when reg_pixels = x"1" else bgcolor;
     -- set the color_pixels word based on the reg_pixels byte which is a registered
     -- version of the pixels byte that comes from the lookup table.  When reg_pixels is '1', we use the
     -- text color, otherwise we use the background color
-
+    
 
 	-- User logic ends
 
