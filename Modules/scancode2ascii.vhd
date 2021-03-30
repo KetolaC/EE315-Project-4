@@ -10,7 +10,7 @@ use IEEE.STD_LOGIC_UNSIGNED.ALL;
 
 entity scancode2ascii is
     Port ( scancode : in std_logic_vector(7 downto 0);
-           ascii : out std_logic_vector(7 downto 0);
+           ascii_out : out std_logic_vector(7 downto 0);
 			  shift, ctrl, alt : in std_logic
 			 );
 end scancode2ascii;
@@ -140,8 +140,8 @@ begin
 
 	-- ctrl key zeroes out bits 5 and 6
 	-- alt key sets the 7th bit
-	ascii(4 downto 0) <= data(4 downto 0);
-	ascii(6 downto 5) <= "00" when ctrl='1' else data(6 downto 5);
-	ascii(7) <= alt;
+	ascii_out(4 downto 0) <= data(4 downto 0);
+	ascii_out(6 downto 5) <= "00" when ctrl='1' else data(6 downto 5);
+	ascii_out(7) <= alt;
 
 end Behavioral;
