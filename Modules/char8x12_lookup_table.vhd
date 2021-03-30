@@ -11,7 +11,7 @@ use UNISIM.VComponents.all;
 entity char8x12_lookup_table is
     Port ( clk : in std_logic;
            reset : in std_logic;
-           ascii : in std_logic_vector(7 downto 0);
+           ascii_in : in std_logic_vector(7 downto 0);
            line : in integer range 0 to 11;
            pixels : out std_logic_vector(7 downto 0));
 end char8x12_lookup_table;
@@ -165,13 +165,13 @@ begin
 
 	bram_we <= '0';
 
-	bram_en2 <= ascii(7);
+	bram_en2 <= ascii_in(7);
 	bram_en1 <= not bram_en2;
 	bram_di <= (others => '0');
 	bram_dip <= (others => '0');
 
-	bram_addr <= ascii(6 downto 0) & conv_std_logic_vector(line,4);
+	bram_addr <= ascii_in(6 downto 0) & conv_std_logic_vector(line,4);
 
-	pixels <= bram_do2 when ascii(7)='1' else bram_do1;
+	pixels <= bram_do2 when ascii_in(7)='1' else bram_do1;
 
 end Behavioral;
