@@ -599,16 +599,16 @@ begin
     port map(
     clk => M_AXI_ACLK,
     reset => rst_p,
-    line => scan_line,
+    line => current_line,
     ascii_in => ascii,
-    pixels => axi_wdata 
+    pixels => pixels 
 --    pixels => open
     ); 
     
     -- instantiate the scancode to ascii component here
     inst_SCAN : scancode2ascii
     port map(
-    scancode => M_AXI_RDATA,
+    scancode => code,
     ascii_out => ascii,
     shift => shift,
     ctrl => ctrl,
@@ -616,12 +616,64 @@ begin
     );
     
     -- set the text and background color here
-    color_pixels <= txtcolor when reg_pixels = x"1" else bgcolor;
+--    color_pixels <= txtcolor when reg_pixels = x"1" else bgcolor;
+    txtcolor <= "0000"; --black
+    bgcolor <= "1111";  --white
     -- set the color_pixels word based on the reg_pixels byte which is a registered
     -- version of the pixels byte that comes from the lookup table.  When reg_pixels is '1', we use the
     -- text color, otherwise we use the background color
-    
+    process(M_AXI_ACLK)
+        begin
+        if(reg_pixels(7)='1')then
+            color_pixels(31 downto 28) <= txtcolor;
+        else
+            color_pixels(31 downto 28) <= bgcolor;
+        end if;
+        
+        if(reg_pixels(6)='1')then
+            color_pixels(27 downto 24) <= txtcolor;
+        else
+            color_pixels(27 downto 24) <= bgcolor;
+        end if;
+      
+        if(reg_pixels(5)='1')then
+            color_pixels(23 downto 20) <= txtcolor;
+        else
+            color_pixels(23 downto 20) <= bgcolor;
+        end if;
+        
+        if(reg_pixels(4)='1')then
+            color_pixels(19 downto 16) <= txtcolor;
+        else
+            color_pixels(19 downto 16) <= bgcolor;
+        end if;            
+       
+        if(reg_pixels(3)='1')then
+            color_pixels(15 downto 12) <= txtcolor;
+        else
+            color_pixels(15 downto 12) <= bgcolor;
+        end if;            
+        
+        if(reg_pixels(2)='1')then
+            color_pixels(11 downto 8) <= txtcolor;
+        else
+            color_pixels(11 downto 8) <= bgcolor;
+        end if;            
 
+
+        if(reg_pixels(1)='1')then
+            color_pixels(7 downto 4) <= txtcolor;
+        else
+            color_pixels(7 downto 4) <= bgcolor;
+        end if;            
+            
+        if(reg_pixels(0)='1')then
+            color_pixels(3 downto 0) <= txtcolor;
+        else
+            color_pixels(3 downto 0) <= bgcolor;
+        end if;            
+
+    end process;
 	-- User logic ends
 
 end implementation;
